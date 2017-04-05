@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", startScripts());
 
 
-
 function buildChart(conteinerSelector, dataObj, settingsObj) {
 
 	// ========================================================================
@@ -11,11 +10,11 @@ function buildChart(conteinerSelector, dataObj, settingsObj) {
 	}	
 
 	defaultSettingsObj = {
-		svgWidth: 1000,
-		svgHeigth: 500,
+		svgWidth: 800,
+		svgHeigth: 400,
 		svgMargin: {top: 20, right: 270, bottom: 50, left: 60},
 		svgBorder: '2px solid #999',
-		svgAxis: {xRange:[0, 60], yRange:[0, 100], xLabel: 'WEEK', yLabel: 'PERCENT', labelColor: '#666', fontSize: 16},
+		svgAxis: {xRange:[0, 60], xLabel: 'WEEK', xQuantity: 15, yRange:[0, 100], yLabel: 'PERCENT', yQuantity: 5, labelColor: '#666', fontSize: 16},
 
 		legendBorder: '1px solid #999',
 		legendFontSize: 18,
@@ -34,7 +33,6 @@ function buildChart(conteinerSelector, dataObj, settingsObj) {
 	}
 	// ========================================================================
 
-
 	var data = dataObj;
 
 	var svgW = settingsObj.svgWidth, 
@@ -43,17 +41,15 @@ function buildChart(conteinerSelector, dataObj, settingsObj) {
 		chartW = svgW - ( margin.left + margin.right ),
 		chartH = svgH - ( margin.top + margin.bottom );
 
-
 	// ========================================================================
 	// Create SVG Element
 	var svgEl = d3.select(conteinerSelector).append('svg')
-		// .attr('width', svgW)
-		// .attr('height', svgH)
+		.attr('width', svgW)
+		.attr('height', svgH)
 		.attr('viewBox', '0 0 ' + svgW + ' ' + svgH)
 		.attr('preserveAspectRatio', "xMidYMid meet")
 		.style('border', settingsObj.svgBorder);
 	// ========================================================================
-
 
 	// ========================================================================
 	// Create Svg_CANVAS
@@ -64,33 +60,31 @@ function buildChart(conteinerSelector, dataObj, settingsObj) {
 		.attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 	// ========================================================================
 
-
 	// ========================================================================
-	// Create LEGEND
+	// Create LEGEND wrapper
 	var legend = svgEl.append("g")
 		.attr("class", "charts_legend")
 		.attr("transform", 'translate(' + (svgW - (margin.right - 70 )) + ', ' + (chartH/2 - 35) + ')')
 		.style('border', settingsObj.legendBorder)
 	// ========================================================================
 
-
 	// ========================================================================
-	// AXIS
-
+	// AXIS X
 	// Scale X func
 	var xAxisScale = d3.scaleLinear()
 		.domain(settingsObj.svgAxis.xRange)
-		.rangeRound([0, chartW]);	
+		.range([0, chartW]);	
 
-	// Scale Y func
-	var yAxisScale = d3.scaleLinear()
-		.domain(settingsObj.svgAxis.yRange)
-		.rangeRound([chartH, 0]);
+console.log(settingsObj.svgAxis.xRange, [0, chartW]);
+
+	// Create X Axis
+	var xAxis = d3.axisBottom(xAxisScale)
+		.ticks(settingsObj.svgAxis.xQuantity);
 
 	// Add the x Axis
-	var xAxis = svgEl.append("g")
+	svgEl.append("g")
 		.attr("transform", "translate(" + margin.left + "," + (chartH + margin.top) + ")")
-		.call(d3.axisBottom(xAxisScale));
+		.call(xAxis);
 
 	// Label Text for the X axis
 	svgEl.append("text")
@@ -99,11 +93,23 @@ function buildChart(conteinerSelector, dataObj, settingsObj) {
 		.style("text-anchor", "middle")
 		.style("fill", settingsObj.svgAxis.labelColor)
 		.text(settingsObj.svgAxis.xLabel);
+	// ========================================================================
+
+	// ========================================================================
+	// AXIS Y
+	// Scale Y func
+	var yAxisScale = d3.scaleLinear()
+		.domain(settingsObj.svgAxis.yRange)
+		.range([chartH, 0]);
+
+	// Create Y Axis
+	var yAxis = d3.axisLeft(yAxisScale)
+		.ticks(settingsObj.svgAxis.yQuantity);
 
 	// Add the Y Axis
-	var yAxis = svgEl.append("g")
+	svgEl.append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-		.call(d3.axisLeft(yAxisScale));
+		.call(yAxis);
 
 	// Label Text for the Y axis
 	svgEl.append("text")
@@ -115,7 +121,6 @@ function buildChart(conteinerSelector, dataObj, settingsObj) {
 		.style("fill", settingsObj.svgAxis.labelColor)
 		.text(settingsObj.svgAxis.yLabel);
 	// ========================================================================
-
 
 
 	// ========================================================================
@@ -133,7 +138,12 @@ function buildChart(conteinerSelector, dataObj, settingsObj) {
 		var addLine = svgCanvas
 			.data([data[i].dataSet])
 			.append("path")
-			.attr("d", lineGeneration )
+			.attr("d", lineGeneration)
+
+			// .attr("d", function(d) {
+			// 	console.log(lineGeneration);
+			// 	return lineGeneration;
+			// })
 
 			.attr("stroke", function(d){ 
 				return data[i].color; 
@@ -271,8 +281,6 @@ function buildChart(conteinerSelector, dataObj, settingsObj) {
 			})
 
 
-		console.log(i, data[i].name);
-
 		// ========================================================================
 
 
@@ -288,8 +296,8 @@ function startScripts() {
 	// DATA
 		var dataChart_1_1 = [
 				{
-					'name': 'PASI 75',
-					'color': '#a2cc95',
+					'name': 'Chart No#1',
+					'color': '#239bcd',
 					'labelsPos': 'top',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 1, 'y': 10}, {'x': 2, 'y': 20}, 
@@ -302,8 +310,8 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 90',
-					'color': '#49aa42',
+					'name': 'Chart No#2',
+					'color': '#23cd2b',
 					'labelsPos': 'right',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 1.5, 'y': 5}, {'x': 2, 'y': 7}, 
@@ -316,8 +324,8 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 100',
-					'color': '#006225',
+					'name': 'Chart No#3',
+					'color': '#ff5353',
 					'labelsPos': 'right',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 1, 'y': 1}, {'x': 2, 'y': 3}, 
@@ -333,9 +341,9 @@ function startScripts() {
 
 		var dataChart_1_2 = [
 				{
-					'name': 'PASI 75',
+					'name': 'Chart No#1',
 					'labelsPos': 'top',
-					'color': '#a2cc95',
+					'color': '#239bcd',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 8, 'y': 80}, {'x': 12, 'y': 87}, 
 								{'x': 16, 'y': 88}, {'x': 20, 'y': 89}, {'x': 24, 'y': 88}, 
@@ -348,7 +356,7 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'sPGA 0 lub 1',
+					'name': 'Chart No#2',
 					'labelsPos': 'right-top',
 					'color': '#c2cd23',
 					'dataSet': [
@@ -363,9 +371,9 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 90',
+					'name': 'Chart No#3',
 					'labelsPos': 'right-bottom',
-					'color': '#49aa42',
+					'color': '#23cd2b',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 8, 'y': 54}, {'x': 12, 'y': 68}, 
 								{'x': 16, 'y': 74}, {'x': 20, 'y': 75}, {'x': 24, 'y': 78}, 
@@ -378,9 +386,9 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 100',
+					'name': 'Chart No#4',
 					'labelsPos': 'right',
-					'color': '#006225',
+					'color': '#ff5353',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 8, 'y': 25}, {'x': 12, 'y': 38}, 
 								{'x': 16, 'y': 46}, {'x': 20, 'y': 50}, {'x': 24, 'y': 56}, 
@@ -396,9 +404,9 @@ function startScripts() {
 
 		var dataChart_1_3 = [
 				{
-					'name': 'PASI 75',
+					'name': 'Chart No#1',
 					'labelsPos': 'top',
-					'color': '#a2cc95',
+					'color': '#239bcd',
 					'dataSet': [
 									{'x': 0, 'y': 0}, {'x': 4, 'y': 50}, {'x': 8, 'y': 80}, 
 									{'x': 12, 'y': 84}, {'x': 16, 'y': 86}, {'x': 20, 'y': 88}, 
@@ -412,7 +420,7 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'sPGA 0 lub 1',
+					'name': 'Chart No#2',
 					'labelsPos': 'right',
 					'color': '#c2cd23',
 					'dataSet': [
@@ -428,9 +436,9 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 90',
+					'name': 'Chart No#3',
 					'labelsPos': 'right-bottom',
-					'color': '#49aa42',
+					'color': '#23cd2b',
 					'dataSet': [
 									{'x': 0, 'y': 0}, {'x': 4, 'y': 24}, {'x': 8, 'y': 54}, 
 									{'x': 12, 'y': 65}, {'x': 16, 'y': 73}, {'x': 20, 'y': 74}, 
@@ -443,9 +451,9 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 100',
+					'name': 'Chart No#4',
 					'labelsPos': 'right',
-					'color': '#006225',
+					'color': '#ff5353',
 					'dataSet': [
 									{'x': 0, 'y': 0}, {'x': 4, 'y': 10}, {'x': 8, 'y': 25}, 
 									{'x': 12, 'y': 35}, {'x': 16, 'y': 44}, {'x': 20, 'y': 50}, 
@@ -462,9 +470,9 @@ function startScripts() {
 
 		var dataChart_2_1 = [
 				{
-					'name': 'PASI 75',
+					'name': 'Chart No#1',
 					'labelsPos': 'top',
-					'color': '#a2cc95',
+					'color': '#239bcd',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 1, 'y': 0}, {'x': 2, 'y': 18}, 
 								{'x': 4, 'y': 50}, {'x': 8, 'y': 81}, {'x': 12, 'y': 90}
@@ -475,7 +483,7 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'sPGA 0 lub 1',
+					'name': 'Chart No#2',
 					'labelsPos': 'right-bottom',
 					'color': '#c2cd23',
 					'dataSet': [
@@ -488,9 +496,9 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 90',
+					'name': 'Chart No#3',
 					'labelsPos': 'right-bottom',
-					'color': '#49aa42',
+					'color': '#23cd2b',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 1, 'y': 0}, {'x': 2, 'y': 1}, 
 								{'x': 4, 'y': 8}, {'x': 8, 'y': 27}, {'x': 12, 'y': 42}
@@ -501,9 +509,9 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 100',
+					'name': 'Chart No#4',
 					'labelsPos': 'top',
-					'color': '#006225',
+					'color': '#ff5353',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 1, 'y': 0}, {'x': 2, 'y': 1}, 
 								{'x': 4, 'y': 1}, {'x': 8, 'y': 1}, {'x': 12, 'y': 2}
@@ -517,9 +525,9 @@ function startScripts() {
 
 		var dataChart_2_2 = [
 				{
-					'name': 'PASI 75',
+					'name': 'Chart No#1',
 					'labelsPos': 'top',
-					'color': '#a2cc95',
+					'color': '#239bcd',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 1, 'y': 5}, {'x': 2, 'y': 23}, 
 								{'x': 4, 'y': 54}, {'x': 8, 'y': 81}, {'x': 12, 'y': 87}
@@ -530,7 +538,7 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'sPGA 0 lub 1',
+					'name': 'Chart No#2',
 					'labelsPos': 'right-bottom',
 					'color': '#c2cd23',
 					'dataSet': [
@@ -543,9 +551,9 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 90',
+					'name': 'Chart No#3',
 					'labelsPos': 'right-bottom',
-					'color': '#49aa42',
+					'color': '#23cd2b',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 1, 'y': 0}, {'x': 2, 'y': 1}, 
 								{'x': 4, 'y': 12}, {'x': 8, 'y': 36}, {'x': 12, 'y': 53}
@@ -556,9 +564,9 @@ function startScripts() {
 							]
 				},
 				{
-					'name': 'PASI 100',
+					'name': 'Chart No#4',
 					'labelsPos': 'top',
-					'color': '#006225',
+					'color': '#ff5353',
 					'dataSet': [
 								{'x': 0, 'y': 0}, {'x': 1, 'y': 0}, {'x': 2, 'y': 1}, 
 								{'x': 4, 'y': 3}, {'x': 8, 'y': 5}, {'x': 12, 'y': 7}
@@ -572,15 +580,20 @@ function startScripts() {
 	// ========================================================================
 
 
-	buildChart('#chart', dataChart_1_1);
-	// buildChart('#chart', dataChart_1_2);
+	// buildChart('#chart', dataChart_1_1);
+
+	buildChart('#chart', dataChart_1_2, {
+		svgAxis: {xRange:[0, 30], xLabel: 'WEEK', xQuantity:5, yRange:[0, 100], yLabel: 'PERCENT', yQuantity:5, labelColor: '#666', fontSize: 16},
+	});
+
 	// buildChart('#chart', dataChart_1_3);
 
-	buildChart('#chart', dataChart_2_1, {
-		svgAxis: {xRange:[0, 12], yRange:[0, 100], xLabel: 'WEEK', yLabel: 'PERCENT', labelColor: '#666', fontSize: 16},
-	});
+	// buildChart('#chart', dataChart_2_1, {
+	// 	svgAxis: {xRange:[0, 12], xLabel: 'WEEK', xQuantity:5, yRange:[0, 100], yLabel: 'PERCENT', yQuantity:5, labelColor: '#666', fontSize: 16},
+	// });
+
 	// buildChart('#chart', dataChart_2_2, {
-	// 	svgAxis: {xRange:[0, 12], yRange:[0, 100], xLabel: 'WEEK', yLabel: 'PERCENT', labelColor: '#666', fontSize: 16},
+	// 	svgAxis: {xRange:[0, 12], xLabel: 'WEEK', xQuantity:5, yRange:[0, 100], yLabel: 'PERCENT', labelColor: '#666', fontSize: 16},
 	// });
 
 
